@@ -65,52 +65,41 @@ class _UserDetailPageState extends State<UserDetailPage> {
     }
   }
   Future<void> showDeleteDialog(PostModel post) async {
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          title: const Text('Delete Post'),
-          content: const Text(
-            'Are you sure?',
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      backgroundColor: AppColors.white,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: const Text('Delete Post', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold)),
+      content: const Text('Are You Sure Delete This Post?', style: TextStyle(color: AppColors.textSecondary)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.danger,
+            foregroundColor: AppColors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-
-                await apiService.deletePost(
-                  post.id,
-                );
-
-                setState(() {
-                  posts.removeWhere(
-                    (p) => p.id == post.id,
-                  );
-                });
-
-                Navigator.pop(context);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    backgroundColor: Colors.red,
-                    content: Text(
-                      'Post deleted successfully',
-                    ),
-                  ),
-                );
-              },
-              child: const Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+          onPressed: () async {
+            await apiService.deletePost(post.id);
+            setState(() => posts.removeWhere((p) => p.id == post.id));
+            if (context.mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(backgroundColor: AppColors.danger, content: Text('Post berhasil dihapus')),
+              );
+            }
+          },
+          child: const Text('Delete'),
+        ),
+      ],
+    ),
+  );
+}
   void showEditPostDialog(PostModel post) {
     titleController.text = post.title;
     bodyController.text = post.body;

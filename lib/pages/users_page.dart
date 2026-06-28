@@ -15,7 +15,7 @@ class UsersPage extends StatefulWidget {
 
 class _UsersPageState extends State<UsersPage> {
   final ApiService apiService = ApiService();
-  List<UserModel> users = [];
+  List<UserModel> users = []; List<UserModel> filteredUsers = [];
   bool isLoading = true;
 
   @override
@@ -37,6 +37,7 @@ class _UsersPageState extends State<UsersPage> {
 
       setState(() {
         users = fetchedUsers;
+        filteredUsers = fetchedUsers;
         isLoading = false;
       });
     } catch (e) {
@@ -46,6 +47,15 @@ class _UsersPageState extends State<UsersPage> {
         isLoading = false;
       });
     }
+  }
+  void searchUsers(String query) {
+    setState(() {
+      filteredUsers = users.where((user) {
+        return user.name.toLowerCase().contains(
+          query.toLowerCase(),
+        );
+      }).toList();
+    });
   }
 
   @override
@@ -86,7 +96,8 @@ class _UsersPageState extends State<UsersPage> {
               ),
             ),
             const SizedBox(height: 20),
-            TextField(
+           TextField(
+              onChanged: searchUsers,
               decoration: InputDecoration(
                 isDense: true,
                 hintText: 'Search User',
@@ -112,13 +123,13 @@ class _UsersPageState extends State<UsersPage> {
                     )
                   : users.isEmpty
                       ? const Center(
-                          child: Text('No users found'),
+                          child: Text('Users Not Found'),
                         )
                       : ListView.builder(
-                          itemCount: users.length,
+                          itemCount: filteredUsers.length,
                           itemBuilder: (context, index) {
                             return UsersCard(
-                              user: users[index],
+                              user: filteredUsers[index],
                             );
                           },
                         ),
